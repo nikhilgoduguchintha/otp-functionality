@@ -80,18 +80,30 @@ const OtpInput = ({ size = 6, onSubmit }) => {
     }
   };
   const handlePaste = (event) => {
-    console.log(event, 'paste')
     event.preventDefault();
-    const paste = event.clipboardData.getData("text").slice(0, size);
-    const chars = paste.split("");
-    const newValues = [...inputValues];
-    let index = Number(event.target.id);
-    for (let char of chars) {
-      if (index >= size || isNaN(Number(char))) break;
-      newValues[index++] = char;
+    const paste = event.clipboardData.getData("text").replace(/\D/g, ""); 
+    const inputIndex = Number(event.target.id);
+    const chars = paste.slice(0, size - inputIndex).split("");
+  
+    setInputValues((prev) => {
+      const newValues = [...prev];
+      let index = inputIndex;
+      for (let char of chars) {
+        newValues[index++] = char;
+      }
+      return newValues;
+    });
+  
+    // Focus the next input after the last pasted char
+    const nextIndex = inputIndex + chars.length;
+    const nextInput = event.target.parentElement.querySelector(
+      `input[id="${nextIndex}"]`
+    );
+    if (nextInput) {
+      nextInput.focus();
     }
-    setInputValues(newValues);
   };
+  
 
   const handleArrows = (event) => {
     if (event.key === "ArrowRight") {
